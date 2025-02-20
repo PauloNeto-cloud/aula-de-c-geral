@@ -1,30 +1,19 @@
-#include <stab.h>
+#include <stdio.h>
 
-int main() {
-    double salario;
+int main(){
+    int num1, num2;
+    printf("digite um numero inteiro: ");
+    scanf("%d", &num1);
+
+    printf("digite um numero inteiro maior do que %d\n",num1);
+    scanf("%d", &num2);
     
-    printf("CALCULO DO IMPOSTO DE RENDA\n\n");
-    printf("Digite seu salario: ");
-    scanf("%lf", &salario);
-   
-    if (salario <= 1903.98) {
-        printf("isento de imposto de renda\n");
-    } else {
-        if (salario <= 2826.65) {
-            printf("7,5%% de imposto de renda\n");
-    } else {
-        if (salario <= 3751.05) {
-            printf("15%% de imposto de renda\n");
-    } else {
-        if (salario <= 4664.68) {
-            printf("22,5%% de imposto de renda\n");
-    } else {
-        printf("27,5%% de imposto de renda");
-
-                }
-            }
-        }
+    while(num2 <= num1){
+        printf("digite um numero maior que %d\n");
+        scanf("%d", &num2);
     }
+    printf("existem %d valores no intervalo de %d a %d",
+        num1 - num2 + 1, num1, num2);
+        return 0;
 
-    return 0;
 }
