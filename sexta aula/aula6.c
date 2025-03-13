@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
+//costante
 const int QTD = 100;
 
 void preencherVetorAleatorio(int v[QTD]) {
