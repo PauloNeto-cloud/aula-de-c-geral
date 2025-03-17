@@ -24,11 +24,29 @@ void imprimirVetor(int v[QTD]) {
   }
   printf("\n");
 }
+//APENAS usar com o vetor organizado
+int buscarMelhorada(int v[QTD], int x) {
+  int i = 0;
+  while (i < QTD && v[i] < x) {
+    i += 1;
 
-int buscar(int v[QTD], int x) {
-  for (int i = 0; i < QTD; i += 1) {
-    if (v[i] == x) {
-      return i;
+  }
+  if (i < QTD && v[i] == x){
+    return i;
+  }
+  return -1;
+}
+//APENAS utilizar com o vetor organizado 
+int buscarBinaria(int v[QTD], int x){
+  int inicio = 0, fim = QTD - 1, meio;
+  while (inicio + fim) {
+    meio = inicio + fim / 2;
+    if(v[meio] > x){
+      fim = meio - 1;
+    }else if (v[meio] < x){
+      inicio = meio + 1;
+    }else if (v[meio] == x){
+      return meio;
     }
   }
   return -1;
@@ -44,7 +62,7 @@ int main() {
   printf("Digite um valor entre 1 e 1000: ");
   scanf("%d", &num);
   while (num >= 1 && num <= 1000) {
-    pos = buscar(numeros, num);
+    pos = buscarBinaria(numeros, num);
     if (pos != -1) {
       printf("O numero %d esta dentro do vetor na %da posicao!\n", num, pos + 1);
     } else {
