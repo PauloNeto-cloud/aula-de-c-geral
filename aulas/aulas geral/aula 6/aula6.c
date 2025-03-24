@@ -71,5 +71,5 @@ int main() {
     printf("Digite um valor entre 1 e 1000: ");
     scanf("%d", &num);
   }
-  return 0;
+  return 0; 
 }
