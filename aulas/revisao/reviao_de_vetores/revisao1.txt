@@ -1,0 +1,68 @@
+1. Declaração e Inicialização de Vetores
+A sintaxe para declarar um vetor em C é a seguinte:
+
+tipo nome_do_vetor[tamanho];
+Por exemplo, para declarar um vetor de inteiros com 5 elementos:
+
+
+int numeros[5];
+Você também pode inicializar um vetor na declaração:
+
+int numeros[5] = {1, 2, 3, 4, 5};
+
+2. Acessando Elementos do Vetor
+Os elementos do vetor são acessados usando índices. O índice começa em 0 para o primeiro elemento.
+
+Exemplo:
+
+int numeros[5] = {1, 2, 3, 4, 5};
+printf("%d", numeros[0]); // Acessa o primeiro elemento, que é 1
+
+3. Alterando Elementos do Vetor
+Você pode modificar os valores de um vetor atribuindo um novo valor a um índice específico:
+
+numeros[2] = 10; // Altera o valor no índice 2 para 10
+
+4. Laços de Repetição com Vetores
+Laços, como o for, são frequentemente usados para iterar sobre todos os elementos de um vetor.
+
+Exemplo de laço para imprimir todos os elementos de um vetor:
+
+int numeros[5] = {1, 2, 3, 4, 5};
+for (int i = 0; i < 5; i++) {
+    printf("%d ", numeros[i]);
+}
+
+5. Vetores Multidimensionais
+Em C, você pode criar vetores multidimensionais (matrizes). A sintaxe é semelhante à dos vetores unidimensionais, mas com mais de um índice.
+
+Exemplo de uma matriz 2x3:
+
+int matriz[2][3] = {{1, 2, 3}, {4, 5, 6}};
+Acessando um elemento de uma matriz:
+
+printf("%d", matriz[0][2]); // Imprime o elemento na primeira linha e terceira coluna, que é 3
+
+6. Vetor de Caracteres (String)
+Em C, um vetor de caracteres é usado para armazenar strings. As strings são terminadas com o caractere especial '\0'.
+
+Exemplo de um vetor de caracteres:
+
+char nome[10] = "Maria";
+
+7. Passagem de Vetores para Funções
+Em C, ao passar um vetor para uma função, você está passando um ponteiro para o primeiro elemento do vetor. Isso significa que alterações feitas no vetor dentro da função afetam o vetor original.
+
+Exemplo de passagem de vetor para uma função:
+
+void imprimirVetor(int vetor[], int tamanho) {
+    for (int i = 0; i < tamanho; i++) {
+        printf("%d ", vetor[i]);
+    }
+}
+
+int main() {
+    int numeros[5] = {1, 2, 3, 4, 5};
+    imprimirVetor(numeros, 5);
+    return 0;
+}
