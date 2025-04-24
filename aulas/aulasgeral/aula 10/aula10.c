@@ -16,10 +16,13 @@ int main() {
   srand(7);
   preencherMatriz(matriz1, qtdLinhas1, qtdColunas1);
   preencherMatriz(matriz2, qtdLinhas2, qtdColunas2);
+
   printf("MATRIZ 1\n");
   imprimirMatriz(matriz1, qtdLinhas1, qtdColunas1);
+
   printf("MATRIZ 2\n");
   imprimirMatriz(matriz2, qtdLinhas2, qtdColunas2);
+
   multiplicarMatrizes(
       matriz1, qtdLinhas1, qtdColunas1,
       matriz2, qtdLinhas2, qtdColunas2,
@@ -29,6 +32,7 @@ int main() {
   imprimirMatriz(matriz3, qtdLinhas1, qtdColunas2);
   return 0;
 }
+
 
 void preencherMatriz(int m[][ORDEM], int qtdLinhas, int qtdColunas) {
   for (int i = 0; i < qtdLinhas; i += 1) {
@@ -66,3 +70,12 @@ void multiplicarMatrizes(
     }
   }
 }
+
+void zeros(int qtdLinhas, int qtdColunas, int matriz[qtdLinhas][qtdColunas]){
+    for(int i = 1; i < qtdLinhas; i++){
+        for(int j = i - 1; j > -1; j--){
+            matriz[i][j] = 0;
+        }
+    }
+}
+
