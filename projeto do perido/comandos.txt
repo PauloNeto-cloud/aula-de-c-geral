@@ -1,0 +1,27 @@
+(adiconar video)
+1
+1000
+Cavaleiro da lua
+acao
+
+(adiconar usuario)
+2
+1010
+Paulo Barbosa Apolinario Neto
+
+(lista de videos)
+3
+
+(lista de usuarios)
+4
+
+(adicionar favoritos)
+5
+1010
+1000
+
+(consultar favoritos do usuarios)
+6
+
+(sair do sistema)
+7
