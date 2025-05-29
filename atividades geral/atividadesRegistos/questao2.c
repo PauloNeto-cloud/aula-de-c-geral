@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h> // Para atoi e atof
 
 #define MAX_PRODUTOS 40
 
@@ -12,7 +13,7 @@ typedef struct {
 
 // Protótipos das funções
 void cadastrarProduto(Produto produtos[], int *n);
-void alterarValorUnitario(Produto produtos[], int n, int codigo);
+void alterarValorUnitario(Produto produtos[], int n, int codigo, float novoValor);
 float obterValorUnitario(Produto produtos[], int n, int codigo);
 int obterQuantidadeEstoque(Produto produtos[], int n, int codigo);
 void venderProduto(Produto produtos[], int n, int codigo, int quantidade);
@@ -20,18 +21,13 @@ void atualizarEstoque(Produto produtos[], int n, int codigo, int novaQuantidade)
 void exibirTodosProdutos(Produto produtos[], int n);
 void exibirProdutosEstoqueZero(Produto produtos[], int n);
 int buscarIndicePorCodigo(Produto produtos[], int n, int codigo);
-
-// Função para limpar completamente o buffer de entrada
-void limparBuffer() {
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
-}
+int lerInteiro(const char* prompt);
+float lerFloat(const char* prompt);
 
 int main() {
     Produto produtos[MAX_PRODUTOS];
     int totalProdutos = 0;
-    int opcao, codigo, quantidade, novaQuantidade;
-    char buffer[100];  // Buffer para leitura segura
+    int opcao, codigo, quantidade;
 
     do {
         printf("\n========== SISTEMA DE ESTOQUE ==========\n");
@@ -45,111 +41,54 @@ int main() {
         printf("8. Exibir produtos com estoque zero\n");
         printf("9. Sair\n");
         printf("=======================================\n");
-        printf("Opcao: ");
         
-        // Leitura segura da opção
-        if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
-            break;
-        }
-        opcao = atoi(buffer);
+        opcao = lerInteiro("Opcao: ");
 
         switch (opcao) {
-            case 1: {
-                printf("\n--- CADASTRAR PRODUTO ---\n");
-                
-                // Código
-                printf("Codigo: ");
-                fgets(buffer, sizeof(buffer), stdin);
-                codigo = atoi(buffer);
-                
-                // Descrição
-                printf("Descricao: ");
-                fgets(produtos[totalProdutos].descricao, 50, stdin);
-                produtos[totalProdutos].descricao[strcspn(produtos[totalProdutos].descricao, "\n")] = '\0';
-                
-                // Valor
-                printf("Valor unitario: ");
-                fgets(buffer, sizeof(buffer), stdin);
-                produtos[totalProdutos].valorUnitario = atof(buffer);
-                
-                // Quantidade
-                printf("Quantidade em estoque: ");
-                fgets(buffer, sizeof(buffer), stdin);
-                produtos[totalProdutos].quantidade = atoi(buffer);
-                
-                produtos[totalProdutos].codigo = codigo;
-                totalProdutos++;
-                printf("\nSUCESSO: Produto cadastrado!\n");
+            case 1:
+                cadastrarProduto(produtos, &totalProdutos);
                 break;
-            }
             case 2: {
-                printf("\n--- ALTERAR VALOR UNITARIO ---\n");
-                printf("Codigo do produto: ");
-                fgets(buffer, sizeof(buffer), stdin);
-                codigo = atoi(buffer);
-                alterarValorUnitario(produtos, totalProdutos, codigo);
+                codigo = lerInteiro("\n--- ALTERAR VALOR ---\nCodigo: ");
+                float novoValor = lerFloat("Novo valor: ");
+                alterarValorUnitario(produtos, totalProdutos, codigo, novoValor);
                 break;
             }
             case 3: {
-                printf("\n--- CONSULTAR VALOR UNITARIO ---\n");
-                printf("Codigo do produto: ");
-                fgets(buffer, sizeof(buffer), stdin);
-                codigo = atoi(buffer);
+                codigo = lerInteiro("\n--- CONSULTAR VALOR ---\nCodigo: ");
                 float valor = obterValorUnitario(produtos, totalProdutos, codigo);
-                if (valor >= 0) {
-                    printf("Valor unitario: R$ %.2f\n", valor);
-                }
+                if (valor >= 0) printf("Valor: R$ %.2f\n", valor);
                 break;
             }
             case 4: {
-                printf("\n--- CONSULTAR ESTOQUE ---\n");
-                printf("Codigo do produto: ");
-                fgets(buffer, sizeof(buffer), stdin);
-                codigo = atoi(buffer);
+                codigo = lerInteiro("\n--- CONSULTAR ESTOQUE ---\nCodigo: ");
                 int estoque = obterQuantidadeEstoque(produtos, totalProdutos, codigo);
-                if (estoque >= 0) {
-                    printf("Quantidade em estoque: %d\n", estoque);
-                }
+                if (estoque >= 0) printf("Estoque: %d\n", estoque);
                 break;
             }
             case 5: {
-                printf("\n--- REALIZAR VENDA ---\n");
-                printf("Codigo do produto: ");
-                fgets(buffer, sizeof(buffer), stdin);
-                codigo = atoi(buffer);
-                printf("Quantidade desejada: ");
-                fgets(buffer, sizeof(buffer), stdin);
-                quantidade = atoi(buffer);
+                codigo = lerInteiro("\n--- REALIZAR VENDA ---\nCodigo: ");
+                quantidade = lerInteiro("Quantidade: ");
                 venderProduto(produtos, totalProdutos, codigo, quantidade);
                 break;
             }
             case 6: {
-                printf("\n--- ATUALIZAR ESTOQUE ---\n");
-                printf("Codigo do produto: ");
-                fgets(buffer, sizeof(buffer), stdin);
-                codigo = atoi(buffer);
-                printf("Nova quantidade em estoque: ");
-                fgets(buffer, sizeof(buffer), stdin);
-                novaQuantidade = atoi(buffer);
-                atualizarEstoque(produtos, totalProdutos, codigo, novaQuantidade);
+                codigo = lerInteiro("\n--- ATUALIZAR ESTOQUE ---\nCodigo: ");
+                int novaQuant = lerInteiro("Nova quantidade: ");
+                atualizarEstoque(produtos, totalProdutos, codigo, novaQuant);
                 break;
             }
-            case 7: {
+            case 7:
                 exibirTodosProdutos(produtos, totalProdutos);
                 break;
-            }
-            case 8: {
+            case 8:
                 exibirProdutosEstoqueZero(produtos, totalProdutos);
                 break;
-            }
-            case 9: {
+            case 9:
                 printf("\nEncerrando sistema...\n");
                 break;
-            }
-            default: {
+            default:
                 printf("\nOpcao invalida!\n");
-                break;
-            }
         }
 
     } while (opcao != 9);
@@ -158,114 +97,134 @@ int main() {
     return 0;
 }
 
-// ========== FUNÇÕES ========== //
+// Funções auxiliares para leitura segura
+int lerInteiro(const char* prompt) {
+    char buffer[100];
+    printf("%s", prompt);
+    fgets(buffer, sizeof(buffer), stdin);
+    return atoi(buffer);
+}
 
+float lerFloat(const char* prompt) {
+    char buffer[100];
+    printf("%s", prompt);
+    fgets(buffer, sizeof(buffer), stdin);
+    return atof(buffer);
+}
+
+// ========== FUNÇÕES PRINCIPAIS ========== //
 int buscarIndicePorCodigo(Produto produtos[], int n, int codigo) {
     for (int i = 0; i < n; i++) {
         if (produtos[i].codigo == codigo) {
             return i;
         }
     }
+    printf("Produto nao encontrado!\n");
     return -1;
 }
 
-void alterarValorUnitario(Produto produtos[], int n, int codigo) {
-    int i = buscarIndicePorCodigo(produtos, n, codigo);
-    if (i == -1) {
-        printf("\nERRO: Produto nao encontrado!\n");
+void cadastrarProduto(Produto produtos[], int *n) {
+    if (*n >= MAX_PRODUTOS) {
+        printf("Limite de produtos atingido!\n");
         return;
     }
-    printf("Novo valor unitario: ");
-    char buffer[50];
-    fgets(buffer, sizeof(buffer), stdin);
-    produtos[i].valorUnitario = atof(buffer);
-    printf("\nSUCESSO: Valor atualizado!\n");
+
+    printf("\n--- CADASTRAR PRODUTO ---\n");
+    
+    int codigo;
+    while (1) {
+        codigo = lerInteiro("Codigo: ");
+        if (buscarIndicePorCodigo(produtos, *n, codigo) == -1) break;
+        printf("Codigo ja existe! Tente outro.\n");
+    }
+    
+    produtos[*n].codigo = codigo;
+    
+    printf("Descricao: ");
+    fgets(produtos[*n].descricao, 50, stdin);
+    produtos[*n].descricao[strcspn(produtos[*n].descricao, "\n")] = '\0';
+
+    produtos[*n].valorUnitario = lerFloat("Valor unitario: ");
+    produtos[*n].quantidade = lerInteiro("Quantidade em estoque: ");
+
+    (*n)++;
+    printf("Produto cadastrado com sucesso!\n");
+}
+
+void alterarValorUnitario(Produto produtos[], int n, int codigo, float novoValor) {
+    int i = buscarIndicePorCodigo(produtos, n, codigo);
+    if (i != -1) {
+        produtos[i].valorUnitario = novoValor;
+        printf("Valor atualizado com sucesso!\n");
+    }
 }
 
 float obterValorUnitario(Produto produtos[], int n, int codigo) {
     int i = buscarIndicePorCodigo(produtos, n, codigo);
-    if (i == -1) {
-        printf("\nERRO: Produto nao encontrado!\n");
-        return -1.0;
-    }
-    return produtos[i].valorUnitario;
+    return (i != -1) ? produtos[i].valorUnitario : -1.0;
 }
 
 int obterQuantidadeEstoque(Produto produtos[], int n, int codigo) {
     int i = buscarIndicePorCodigo(produtos, n, codigo);
-    if (i == -1) {
-        printf("\nERRO: Produto nao encontrado!\n");
-        return -1;
-    }
-    return produtos[i].quantidade;
+    return (i != -1) ? produtos[i].quantidade : -1;
 }
 
 void venderProduto(Produto produtos[], int n, int codigo, int quantidade) {
     int i = buscarIndicePorCodigo(produtos, n, codigo);
-    if (i == -1) {
-        printf("\nERRO: Produto nao encontrado!\n");
-        return;
-    }
+    if (i == -1) return;
 
     if (quantidade <= 0) {
-        printf("\nERRO: Quantidade invalida!\n");
+        printf("Quantidade invalida!\n");
         return;
     }
 
     if (produtos[i].quantidade < quantidade) {
-        printf("\nATENCAO: Estoque insuficiente (disponivel: %d)\n", produtos[i].quantidade);
+        printf("Estoque insuficiente! Disponivel: %d\n", produtos[i].quantidade);
         return;
     }
 
     produtos[i].quantidade -= quantidade;
-    printf("\nSUCESSO: Venda realizada!");
-    printf("\nTotal: R$ %.2f\n", quantidade * produtos[i].valorUnitario);
+    printf("Venda realizada! Total: R$ %.2f\n", quantidade * produtos[i].valorUnitario);
 }
 
 void atualizarEstoque(Produto produtos[], int n, int codigo, int novaQuantidade) {
     int i = buscarIndicePorCodigo(produtos, n, codigo);
-    if (i == -1) {
-        printf("\nERRO: Produto nao encontrado!\n");
-        return;
-    }
+    if (i == -1) return;
 
     if (novaQuantidade < 0) {
-        printf("\nERRO: Quantidade invalida!\n");
+        printf("Quantidade invalida!\n");
         return;
     }
 
     produtos[i].quantidade = novaQuantidade;
-    printf("\nSUCESSO: Estoque atualizado!\n");
+    printf("Estoque atualizado com sucesso!\n");
 }
 
 void exibirTodosProdutos(Produto produtos[], int n) {
-    printf("\n--- TODOS OS PRODUTOS (%d) ---\n", n);
+    printf("\n--- TODOS OS PRODUTOS ---\n");
     for (int i = 0; i < n; i++) {
         printf("\nCodigo: %d", produtos[i].codigo);
         printf("\nDescricao: %s", produtos[i].descricao);
         printf("\nValor: R$ %.2f", produtos[i].valorUnitario);
-        printf("\nEstoque: %d", produtos[i].quantidade);
-        printf("\n----------------------------");
+        printf("\nEstoque: %d\n", produtos[i].quantidade);
     }
-    printf("\n");
 }
 
 void exibirProdutosEstoqueZero(Produto produtos[], int n) {
-    printf("\n--- PRODUTOS COM ESTOQUE ZERO ---\n");
-    int encontrados = 0;
+    printf("\n--- PRODUTOS SEM ESTOQUE ---\n");
+    int count = 0;
     
     for (int i = 0; i < n; i++) {
         if (produtos[i].quantidade == 0) {
             printf("\nCodigo: %d", produtos[i].codigo);
-            printf("\nDescricao: %s", produtos[i].descricao);
-            printf("\n----------------------------");
-            encontrados++;
+            printf("\nDescricao: %s\n", produtos[i].descricao);
+            count++;
         }
     }
     
-    if (encontrados == 0) {
-        printf("\nNenhum produto com estoque zero!\n");
+    if (count == 0) {
+        printf("Nenhum produto sem estoque!\n");
     } else {
-        printf("\nTotal: %d produto(s)\n", encontrados);
+        printf("\nTotal: %d produto(s)\n", count);
     }
 }
