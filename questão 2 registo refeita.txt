@@ -1,0 +1,275 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>  // Para system, mas vamos usar apenas para pausa
+
+#define MAX_PRODUTOS 40
+
+typedef struct {
+    int codigo;
+    char descricao[50];
+    float valorUnitario;
+    int quantidade;
+} Produto;
+
+// Protótipos das funções
+void cadastrarProduto(Produto produtos[], int *n);
+void alterarValorUnitario(Produto produtos[], int n, int codigo);
+float obterValorUnitario(Produto produtos[], int n, int codigo);
+int obterQuantidadeEstoque(Produto produtos[], int n, int codigo);
+void venderProduto(Produto produtos[], int n, int codigo, int quantidade);
+void atualizarEstoque(Produto produtos[], int n, int codigo, int novaQuantidade);
+void exibirTodosProdutos(Produto produtos[], int n);
+void exibirProdutosEstoqueZero(Produto produtos[], int n);
+int buscarIndicePorCodigo(Produto produtos[], int n, int codigo);
+
+// Função para limpar buffer de entrada
+void limparBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
+// Função para pausar e aguardar ENTER
+void aguardarEnter() {
+    printf("\nPressione ENTER para continuar...");
+    limparBuffer();
+}
+
+int main() {
+    Produto produtos[MAX_PRODUTOS];
+    int totalProdutos = 0;
+    int opcao, codigo, quantidade, novaQuantidade;
+
+    do {
+        // Não limpa a tela, mas imprime um cabeçalho
+        printf("\n========== SISTEMA DE ESTOQUE ==========\n");
+        printf("1. Cadastrar produto\n");
+        printf("2. Alterar valor unitario\n");
+        printf("3. Consultar valor unitario\n");
+        printf("4. Consultar quantidade em estoque\n");
+        printf("5. Realizar venda\n");
+        printf("6. Atualizar estoque\n");
+        printf("7. Exibir todos os produtos\n");
+        printf("8. Exibir produtos com estoque zero\n");
+        printf("9. Sair\n");
+        printf("=======================================\n");
+        printf("Opcao: ");
+        scanf("%d", &opcao);
+        limparBuffer();  // Limpa buffer após scanf
+
+        switch (opcao) {
+            case 1:
+                cadastrarProduto(produtos, &totalProdutos);
+                aguardarEnter();
+                break;
+            case 2:
+                printf("\n--- ALTERAR VALOR UNITARIO ---\n");
+                printf("Codigo do produto: ");
+                scanf("%d", &codigo);
+                limparBuffer();
+                alterarValorUnitario(produtos, totalProdutos, codigo);
+                aguardarEnter();
+                break;
+            case 3:
+                printf("\n--- CONSULTAR VALOR UNITARIO ---\n");
+                printf("Codigo do produto: ");
+                scanf("%d", &codigo);
+                limparBuffer();
+                float valor = obterValorUnitario(produtos, totalProdutos, codigo);
+                if (valor != -1.0) {
+                    printf("Valor unitario: R$ %.2f\n", valor);
+                }
+                aguardarEnter();
+                break;
+            case 4:
+                printf("\n--- CONSULTAR ESTOQUE ---\n");
+                printf("Codigo do produto: ");
+                scanf("%d", &codigo);
+                limparBuffer();
+                int qtd = obterQuantidadeEstoque(produtos, totalProdutos, codigo);
+                if (qtd != -1) {
+                    printf("Quantidade em estoque: %d\n", qtd);
+                }
+                aguardarEnter();
+                break;
+            case 5:
+                printf("\n--- REALIZAR VENDA ---\n");
+                printf("Codigo do produto: ");
+                scanf("%d", &codigo);
+                limparBuffer();
+                printf("Quantidade desejada: ");
+                scanf("%d", &quantidade);
+                limparBuffer();
+                venderProduto(produtos, totalProdutos, codigo, quantidade);
+                aguardarEnter();
+                break;
+            case 6:
+                printf("\n--- ATUALIZAR ESTOQUE ---\n");
+                printf("Codigo do produto: ");
+                scanf("%d", &codigo);
+                limparBuffer();
+                printf("Nova quantidade em estoque: ");
+                scanf("%d", &novaQuantidade);
+                limparBuffer();
+                atualizarEstoque(produtos, totalProdutos, codigo, novaQuantidade);
+                aguardarEnter();
+                break;
+            case 7:
+                exibirTodosProdutos(produtos, totalProdutos);
+                aguardarEnter();
+                break;
+            case 8:
+                exibirProdutosEstoqueZero(produtos, totalProdutos);
+                aguardarEnter();
+                break;
+            case 9:
+                printf("\nEncerrando sistema...\n");
+                break;
+            default:
+                printf("\nOpcao invalida!\n");
+                aguardarEnter();
+        }
+
+    } while (opcao != 9);
+
+    printf("Volte sempre!\n");
+    return 0;
+}
+
+// ========== IMPLEMENTAÇÃO DAS FUNÇÕES ========== //
+
+int buscarIndicePorCodigo(Produto produtos[], int n, int codigo) {
+    for (int i = 0; i < n; i++) {
+        if (produtos[i].codigo == codigo) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void cadastrarProduto(Produto produtos[], int *n) {
+    if (*n >= MAX_PRODUTOS) {
+        printf("\nERRO: Limite de produtos atingido!\n");
+        return;
+    }
+
+    printf("\n--- CADASTRAR PRODUTO ---\n");
+    printf("Codigo: ");
+    scanf("%d", &produtos[*n].codigo);
+    limparBuffer();
+
+    printf("Descricao: ");
+    fgets(produtos[*n].descricao, 50, stdin);
+    produtos[*n].descricao[strcspn(produtos[*n].descricao, "\n")] = '\0';
+
+    printf("Valor unitario: ");
+    scanf("%f", &produtos[*n].valorUnitario);
+    limparBuffer();
+
+    printf("Quantidade em estoque: ");
+    scanf("%d", &produtos[*n].quantidade);
+    limparBuffer();
+
+    (*n)++;
+    printf("\nSUCESSO: Produto cadastrado!\n");
+}
+
+void alterarValorUnitario(Produto produtos[], int n, int codigo) {
+    int i = buscarIndicePorCodigo(produtos, n, codigo);
+    if (i == -1) {
+        printf("\nERRO: Produto nao encontrado!\n");
+        return;
+    }
+
+    printf("Novo valor unitario: ");
+    scanf("%f", &produtos[i].valorUnitario);
+    limparBuffer();
+    printf("\nSUCESSO: Valor atualizado!\n");
+}
+
+float obterValorUnitario(Produto produtos[], int n, int codigo) {
+    int i = buscarIndicePorCodigo(produtos, n, codigo);
+    if (i == -1) {
+        printf("\nERRO: Produto nao encontrado!\n");
+        return -1.0;
+    }
+    return produtos[i].valorUnitario;
+}
+
+int obterQuantidadeEstoque(Produto produtos[], int n, int codigo) {
+    int i = buscarIndicePorCodigo(produtos, n, codigo);
+    if (i == -1) {
+        printf("\nERRO: Produto nao encontrado!\n");
+        return -1;
+    }
+    return produtos[i].quantidade;
+}
+
+void venderProduto(Produto produtos[], int n, int codigo, int quantidade) {
+    int i = buscarIndicePorCodigo(produtos, n, codigo);
+    if (i == -1) {
+        printf("\nERRO: Produto nao encontrado!\n");
+        return;
+    }
+
+    if (quantidade <= 0) {
+        printf("\nERRO: Quantidade invalida!\n");
+        return;
+    }
+
+    if (produtos[i].quantidade < quantidade) {
+        printf("\nATENCAO: Estoque insuficiente (disponivel: %d)\n", produtos[i].quantidade);
+        return;
+    }
+
+    produtos[i].quantidade -= quantidade;
+    printf("\nSUCESSO: Venda realizada!");
+    printf("\nTotal: R$ %.2f\n", quantidade * produtos[i].valorUnitario);
+}
+
+void atualizarEstoque(Produto produtos[], int n, int codigo, int novaQuantidade) {
+    int i = buscarIndicePorCodigo(produtos, n, codigo);
+    if (i == -1) {
+        printf("\nERRO: Produto nao encontrado!\n");
+        return;
+    }
+
+    if (novaQuantidade < 0) {
+        printf("\nERRO: Quantidade invalida!\n");
+        return;
+    }
+
+    produtos[i].quantidade = novaQuantidade;
+    printf("\nSUCESSO: Estoque atualizado!\n");
+}
+
+void exibirTodosProdutos(Produto produtos[], int n) {
+    printf("\n--- TODOS OS PRODUTOS (%d) ---\n", n);
+    for (int i = 0; i < n; i++) {
+        printf("\nCodigo: %d", produtos[i].codigo);
+        printf("\nDescricao: %s", produtos[i].descricao);
+        printf("\nValor: R$ %.2f", produtos[i].valorUnitario);
+        printf("\nEstoque: %d", produtos[i].quantidade);
+        printf("\n----------------------------");
+    }
+    printf("\n");
+}
+
+void exibirProdutosEstoqueZero(Produto produtos[], int n) {
+    printf("\n--- PRODUTOS COM ESTOQUE ZERO ---\n");
+    int encontrados = 0;
+    
+    for (int i = 0; i < n; i++) {
+        if (produtos[i].quantidade == 0) {
+            printf("\nCodigo: %d", produtos[i].codigo);
+            printf("\nDescricao: %s", produtos[i].descricao);
+            printf("\n----------------------------");
+            encontrados++;
+        }
+    }
+    
+    if (encontrados == 0) {
+        printf("\nNenhum produto com estoque zero!\n");
+    } else {
+        printf("\nTotal: %d produto(s)\n", encontrados);
+    }
+}
