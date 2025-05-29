@@ -1,94 +1,74 @@
 #include <stdio.h>
-#include <string.h>
-
-#define ESTADOS 26
+#include <ctype.h>
+#define NUM_ESTADOS 26
 
 typedef struct {
-    char nome[30];
+    char nome[50];
     int veiculos;
     int acidentes;
 } Estado;
 
-// (a) Coletar dados dos estados
 void coletarDados(Estado estados[]) {
-    char nomesEstados[ESTADOS][30] = {
-        "Acre", "Alagoas", "Amapa", "Amazonas", "Bahia", "Ceara", "Distrito Federal",
-        "Espirito Santo", "Goias", "Maranhao", "Mato Grosso", "Mato Grosso do Sul",
-        "Minas Gerais", "Para", "Paraiba", "Parana", "Pernambuco", "Piaui",
-        "Rio de Janeiro", "Rio Grande do Norte", "Rio Grande do Sul", "Rondonia",
-        "Roraima", "Santa Catarina", "Sao Paulo", "Sergipe"
-    };
-
-    for (int i = 0; i < ESTADOS; i++) {
-        strcpy(estados[i].nome, nomesEstados[i]);
-        printf("Estado: %s\n", estados[i].nome);
-        printf("  Veiculos em 2007: ");
+    for(int i = 0; i < NUM_ESTADOS; i++) {
+        scanf(" %[^\n]s", estados[i].nome);
         scanf("%d", &estados[i].veiculos);
-        printf("  Acidentes em 2007: ");
         scanf("%d", &estados[i].acidentes);
     }
 }
 
-// (b) Maior e menor número de acidentes
-void maiorMenorAcidentes(Estado estados[], int *maior, int *menor) {
-    *maior = 0;
-    *menor = 0;
-    for (int i = 1; i < ESTADOS; i++) {
-        if (estados[i].acidentes > estados[*maior].acidentes)
-            *maior = i;
-        if (estados[i].acidentes < estados[*menor].acidentes)
-            *menor = i;
+void encontrarExtremos(Estado estados[], int *ind_maior, int *ind_menor) {
+    *ind_maior = 0;
+    *ind_menor = 0;
+    for(int i = 1; i < NUM_ESTADOS; i++) {
+        if(estados[i].acidentes > estados[*ind_maior].acidentes) *ind_maior = i;
+        if(estados[i].acidentes < estados[*ind_menor].acidentes) *ind_menor = i;
     }
 }
 
-// (c) Percentual de veículos envolvidos em acidentes
-float percentualAcidentes(Estado estado) {
-    if (estado.veiculos == 0) return 0.0;
-    return (estado.acidentes * 100.0) / estado.veiculos;
+float calcularPercentual(Estado estados[], int indice) {
+    if(estados[indice].veiculos == 0) return 0.0;
+    return (float)estados[indice].acidentes * 100 / estados[indice].veiculos;
 }
 
-// (d) Média de acidentes
-float mediaAcidentes(Estado estados[]) {
+float calcularMedia(Estado estados[]) {
     int total = 0;
-    for (int i = 0; i < ESTADOS; i++) {
-        total += estados[i].acidentes;
-    }
-    return total / (float)ESTADOS;
+    for(int i = 0; i < NUM_ESTADOS; i++) total += estados[i].acidentes;
+    return (float)total / NUM_ESTADOS;
 }
 
-// (e) Estados acima da média de acidentes
-void estadosAcimaDaMedia(Estado estados[], float media) {
-    printf("\nEstados com acidentes acima da média nacional (%.2f):\n", media);
-    for (int i = 0; i < ESTADOS; i++) {
-        if (estados[i].acidentes > media) {
-            printf("  %s - Acidentes: %d\n", estados[i].nome, estados[i].acidentes);
+void exibirAcimaDaMedia(Estado estados[], float media) {
+    printf("\nEstados com acidentes acima da media nacional:\n");
+    for(int i = 0; i < NUM_ESTADOS; i++) {
+        if(estados[i].acidentes > media) {
+            printf("- %s: %d acidentes\n", estados[i].nome, estados[i].acidentes);
         }
     }
 }
 
 int main() {
-    Estado estados[ESTADOS];
-    int indiceMaior, indiceMenor;
-
+    Estado estados[NUM_ESTADOS];
+    int indice_maior, indice_menor;
+    
+    printf("Informe os dados (Estado, Veiculos, Acidentes) para os 26 estados:\n");
     coletarDados(estados);
     
-    maiorMenorAcidentes(estados, &indiceMaior, &indiceMenor);
+    encontrarExtremos(estados, &indice_maior, &indice_menor);
     
-    printf("\nMaior número de acidentes:\n  %s - %d acidentes\n", 
-           estados[indiceMaior].nome, estados[indiceMaior].acidentes);
-    printf("Menor número de acidentes:\n  %s - %d acidentes\n", 
-           estados[indiceMenor].nome, estados[indiceMenor].acidentes);
-
-    printf("\nPercentual de acidentes por estado:\n");
-    for (int i = 0; i < ESTADOS; i++) {
-        float perc = percentualAcidentes(estados[i]);
-        printf("  %s: %.2f%%\n", estados[i].nome, perc);
+    printf("\n=== RESULTADOS DA PESQUISA ===\n");
+    printf("Estado com MAIS acidentes: %s (%d acidentes)\n", 
+           estados[indice_maior].nome, estados[indice_maior].acidentes);
+    printf("Estado com MENOS acidentes: %s (%d acidentes)\n", 
+           estados[indice_menor].nome, estados[indice_menor].acidentes);
+    
+    printf("\nPercentual de veiculos envolvidos em acidentes por estado:\n");
+    for(int i = 0; i < NUM_ESTADOS; i++) {
+        printf("- %s: %.2f%%\n", estados[i].nome, calcularPercentual(estados, i));
     }
-
-    float media = mediaAcidentes(estados);
-    printf("\nMédia de acidentes no país: %.2f\n", media);
-
-    estadosAcimaDaMedia(estados, media);
-
+    
+    float media = calcularMedia(estados);
+    printf("\nMedia nacional de acidentes: %.2f\n", media);
+    
+    exibirAcimaDaMedia(estados, media);
+    
     return 0;
 }
