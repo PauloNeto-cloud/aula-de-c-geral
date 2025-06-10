@@ -1,166 +1,160 @@
-void cadastrarAutor(struct Autor v[], int *qtd);
-void imprimirAutores(struct Autor v[], int qtd);
-void cadastrarLivro(struct Livro lv[], int *qtd, struct Autor au[], int qtdAutores);
-void imprimirLivros(struct Livro lv[], int qtdLivros, struct Autor au[], int qtdAutores);
-void ordenarPorTitulo(struct Livro lv[], int qtd);
-void buscaBinariaPorResumo(struct Livro lv[], int qtd, char *chave);
+#include <stdio.h>
+#include <string.h>
 
-int main() {
-    struct Autor autores[TAM];
-    struct Livro livros[TAM];
-    int qtdAutores = 0, qtdLivros = 0;
-    int opcao;
-    char chave[256];
+#define TAM 100
 
-    do {
-        printf("\n--- MENU ---\n");
-        printf("1. Cadastrar autor\n");
-        printf("2. Imprimir autores\n");
-        printf("3. Cadastrar livro\n");
-        printf("4. Imprimir livros\n");
-        printf("5. Ordenar livros por título\n");
-        printf("6. Buscar livro por resumo (binária)\n");
-        printf("0. Sair\n");
-        printf("Escolha uma opção: ");
-        scanf("%d", &opcao);
+struct Diretor {
+    int codigo;
+    char nome[50];
+};
 
-        switch(opcao) {
-            case 1:
-                cadastrarAutor(autores, &qtdAutores);
-                break;
-            case 2:
-                imprimirAutores(autores, qtdAutores);
-                break;
-            case 3:
-                cadastrarLivro(livros, &qtdLivros, autores, qtdAutores);
-                break;
-            case 4:
-                imprimirLivros(livros, qtdLivros, autores, qtdAutores);
-                break;
-            case 5:
-                ordenarPorTitulo(livros, qtdLivros);
-                printf("Livros ordenados com sucesso.\n");
-                break;
-            case 6:
-                printf("Digite o resumo para busca: ");
-                scanf(" %[^\n]", chave);
-                buscaBinariaPorResumo(livros, qtdLivros, chave);
-                break;
-            case 0:
-                printf("Encerrando...\n");
-                break;
-            default:
-                printf("Opção inválida!\n");
-        }
+struct Filme {
+    int codigo;
+    char titulo[100];
+    char sinopse[200];
+    int diretor;
+    float nota;
+};
 
-    } while(opcao != 0);
-
-    return 0;
-}
-
-void cadastrarAutor(struct Autor v[], int *qtd) {
+void cadastrarDiretor(struct Diretor v[], int *qtd) {
     if (*qtd >= TAM) {
-        printf("Limite de autores atingido.\n");
+        printf("\nLimite de diretores atingido!\n");
         return;
     }
-
     v[*qtd].codigo = *qtd + 1;
-    printf("Digite o nome do autor: ");
-    scanf(" %[^\n]", v[*qtd].nome);
-
+    printf("\nDigite o nome do diretor: ");
+    fflush(stdin);
+    fgets(v[*qtd].nome, 50, stdin);
+    v[*qtd].nome[strcspn(v[*qtd].nome, "\n")] = 0;
     (*qtd)++;
 }
 
-void imprimirAutores(struct Autor v[], int qtd) {
+void imprimirDiretores(struct Diretor v[], int qtd) {
     for (int i = 0; i < qtd; i++) {
-        printf("Código: %d | Nome: %s\n", v[i].codigo, v[i].nome);
+        printf("\nCodigo: %d | Nome: %s", v[i].codigo, v[i].nome);
     }
+    printf("\n");
 }
 
-void cadastrarLivro(struct Livro lv[], int *qtd, struct Autor au[], int qtdAutores) {
+void cadastrarFilme(struct Filme f[], int *qtd, struct Diretor d[], int qtdDiretores) {
     if (*qtd >= TAM) {
-        printf("Limite de livros atingido.\n");
+        printf("\nLimite de filmes atingido!\n");
         return;
     }
+    f[*qtd].codigo = *qtd + 1;
+    printf("\nTitulo: ");
+    fflush(stdin);
+    fgets(f[*qtd].titulo, 100, stdin);
+    f[*qtd].titulo[strcspn(f[*qtd].titulo, "\n")] = 0;
 
-    lv[*qtd].codigo = *qtd + 1;
+    printf("Sinopse: ");
+    fgets(f[*qtd].sinopse, 200, stdin);
+    f[*qtd].sinopse[strcspn(f[*qtd].sinopse, "\n")] = 0;
 
-    printf("Digite o título do livro: ");
-    scanf(" %[^\n]", lv[*qtd].titulo);
+    printf("Nota (0.0 a 10.0): ");
+    scanf("%f", &f[*qtd].nota);
 
-    printf("Digite o resumo do livro: ");
-    scanf(" %[^\n]", lv[*qtd].resumo);
+    printf("Codigo do diretor: ");
+    scanf("%d", &f[*qtd].diretor);
 
-    if (qtdAutores == 0) {
-        printf("Não há autores cadastrados.\n");
+    int valido = 0;
+    for (int i = 0; i < qtdDiretores; i++) {
+        if (d[i].codigo == f[*qtd].diretor) {
+            valido = 1;
+            break;
+        }
+    }
+
+    if (!valido) {
+        printf("\nDiretor nao encontrado. Filme nao cadastrado.\n");
         return;
     }
-
-    printf("Autores disponíveis:\n");
-    for (int i = 0; i < qtdAutores; i++) {
-        printf("%d - %s\n", au[i].codigo, au[i].nome);
-    }
-
-    printf("Digite o código do autor: ");
-    scanf("%d", &lv[*qtd].autor);
-
-    printf("Digite o preço do livro: ");
-    scanf("%f", &lv[*qtd].preco);
 
     (*qtd)++;
 }
 
-void imprimirLivros(struct Livro lv[], int qtdLivros, struct Autor au[], int qtdAutores) {
-    for (int i = 0; i < qtdLivros; i++) {
-        char nomeAutor[50] = "Desconhecido";
-        for (int j = 0; j < qtdAutores; j++) {
-            if (lv[i].autor == au[j].codigo) {
-                strcpy(nomeAutor, au[j].nome);
-                break;
-            }
-        }
+char* obterNomeDiretor(struct Diretor d[], int qtd, int cod) {
+    for (int i = 0; i < qtd; i++) {
+        if (d[i].codigo == cod) return d[i].nome;
+    }
+    return "Desconhecido";
+}
 
-        printf("Código: %d\n", lv[i].codigo);
-        printf("Título: %s\n", lv[i].titulo);
-        printf("Resumo: %s\n", lv[i].resumo);
-        printf("Autor: %s\n", nomeAutor);
-        printf("Preço: R$ %.2f\n\n", lv[i].preco);
+void imprimirFilmes(struct Filme f[], int qtdFilmes, struct Diretor d[], int qtdDiretores) {
+    for (int i = 0; i < qtdFilmes; i++) {
+        printf("\nCodigo: %d", f[i].codigo);
+        printf("\nTitulo: %s", f[i].titulo);
+        printf("\nSinopse: %s", f[i].sinopse);
+        printf("\nDiretor: %s", obterNomeDiretor(d, qtdDiretores, f[i].diretor));
+        printf("\nNota: %.1f/10\n", f[i].nota);
     }
 }
 
-void ordenarPorTitulo(struct Livro lv[], int qtd) {
+void ordenarFilmesPorTitulo(struct Filme f[], int qtd) {
     for (int i = 0; i < qtd - 1; i++) {
-        int menor = i;
+        int min = i;
         for (int j = i + 1; j < qtd; j++) {
-            if (strcmp(lv[j].titulo, lv[menor].titulo) < 0) {
-                menor = j;
+            if (strcmp(f[j].titulo, f[min].titulo) < 0) {
+                min = j;
             }
         }
-
-        if (menor != i) {
-            struct Livro temp = lv[i];
-            lv[i] = lv[menor];
-            lv[menor] = temp;
+        if (min != i) {
+            struct Filme aux = f[i];
+            f[i] = f[min];
+            f[min] = aux;
         }
     }
 }
 
-void buscaBinariaPorResumo(struct Livro lv[], int qtd, char *chave) {
-    int ini = 0, fim = qtd - 1;
-    while (ini <= fim) {
-        int meio = (ini + fim) / 2;
-        int cmp = strcmp(chave, lv[meio].resumo);
-
+void buscaBinariaPorSinopse(struct Filme f[], int qtd, char *chave) {
+    int inicio = 0, fim = qtd - 1;
+    while (inicio <= fim) {
+        int meio = (inicio + fim) / 2;
+        int cmp = strcmp(f[meio].sinopse, chave);
         if (cmp == 0) {
-            printf("Livro encontrado:\n");
-            printf("Código: %d\nTítulo: %s\nResumo: %s\nPreço: R$ %.2f\n",
-                   lv[meio].codigo, lv[meio].titulo, lv[meio].resumo, lv[meio].preco);
+            printf("\nFilme encontrado:\nTitulo: %s\nSinopse: %s\nNota: %.1f\n", f[meio].titulo, f[meio].sinopse, f[meio].nota);
             return;
         } else if (cmp < 0) {
-            fim = meio - 1;
+            inicio = meio + 1;
         } else {
-            ini = meio + 1;
+            fim = meio - 1;
         }
     }
-    printf("Resumo não encontrado.\n");
+    printf("\nFilme nao encontrado.\n");
+}
+
+void exibirFilmesAcimaDaMedia(struct Filme f[], int qtd) {
+    float soma = 0;
+    for (int i = 0; i < qtd; i++) soma += f[i].nota;
+    float media = soma / qtd;
+    printf("\nNota media: %.2f\n", media);
+    for (int i = 0; i < qtd; i++) {
+        if (f[i].nota > media) {
+            printf("\nTitulo: %s | Nota: %.1f\n", f[i].titulo, f[i].nota);
+        }
+    }
+}
+
+int main() {
+    struct Diretor diretores[TAM];
+    struct Filme filmes[TAM];
+    int qtdDiretores = 0, qtdFilmes = 0;
+
+    // Exemplo simples para testar (menu pode ser adicionado depois)
+    cadastrarDiretor(diretores, &qtdDiretores);
+    cadastrarFilme(filmes, &qtdFilmes, diretores, qtdDiretores);
+    imprimirDiretores(diretores, qtdDiretores);
+    imprimirFilmes(filmes, qtdFilmes, diretores, qtdDiretores);
+    ordenarFilmesPorTitulo(filmes, qtdFilmes);
+
+    char busca[200];
+    printf("\nDigite a sinopse para busca binaria: ");
+    fflush(stdin);
+    fgets(busca, 200, stdin);
+    busca[strcspn(busca, "\n")] = 0;
+    buscaBinariaPorSinopse(filmes, qtdFilmes, busca);
+
+    exibirFilmesAcimaDaMedia(filmes, qtdFilmes);
+
+    return 0;
 }
